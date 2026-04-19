@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>CyberShield Login - Secure Access Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-cyan: #00fff5;
+            --neon-pink: #ff006e;
+            --neon-blue: #0080ff;
+            --deep-black: #000000;
+            --dark-navy: #0a0f1e;
+            --card-bg: #0d1117;
+            --input-bg: #161b22;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated scan lines */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 245, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 255, 245, 0.03) 3px
+            );
+            animation: scanlines 8s linear infinite;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes scanlines {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(10px);
+            }
+        }
+
+        /* Hexagonal pattern background */
+        .hex-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(0, 255, 245, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 110, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(0, 128, 255, 0.1) 0%, transparent 50%);
+            animation: bgPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Particle system */
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: particleFloat 4s ease-in-out infinite;
+            box-shadow: 0 0 4px var(--neon-cyan);
+        }
+
+        @keyframes particleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) translateX(0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) translateX(50px);
+            }
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 520px;
+            animation: containerEntry 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes containerEntry {
+            from {
+                opacity: 0;
+                transform: scale(0.8) rotateX(20deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotateX(0deg);
+            }
+        }
+
+        .login-card {
+            background: linear-gradient(135deg, rgba(13, 17, 23, 0.95) 0%, rgba(10, 15, 30, 0.95) 100%);
+            backdrop-filter: blur(40px);
+            border-radius: 24px;
+            padding: 50px 45px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 80px rgba(0, 255, 245, 0.2),
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                inset 0 0 0 1px rgba(0, 255, 245, 0.2);
+        }
+
+        /* Corner decorations */
+        .corner-accent {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--neon-cyan);
+        }
+
+        .corner-accent.top-left {
+            top: 15px;
+            left: 15px;
+            border-right: none;
+            border-bottom: none;
+            box-shadow: -2px -2px 10px rgba(0, 255, 245, 0.5);
+        }
+
+        .corner-accent.top-right {
+            top: 15px;
+            right: 15px;
+            border-left: none;
+            border-bottom: none;
+            box-shadow: 2px -2px 10px rgba(0, 255, 245, 0.5);
+        }
+
+        .corner-accent.bottom-left {
+            bottom: 15px;
+            left: 15px;
+            border-right: none;
+            border-top: none;
+            box-shadow: -2px 2px 10px rgba(0, 255, 245, 0.5);
+        }
+
+        .corner-accent.bottom-right {
+            bottom: 15px;
+            right: 15px;
+            border-left: none;
+            border-top: none;
+            box-shadow: 2px 2px 10px rgba(0, 255, 245, 0.5);
+        }
+
+        /* Animated border glow */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg,
+                var(--neon-cyan),
+                var(--neon-pink),
+                var(--neon-blue),
+                var(--neon-cyan)
+            );
+            background-size: 400% 400%;
+            border-radius: 24px;
+            z-index: -1;
+            opacity: 0.4;
+            filter: blur(10px);
+            animation: glowRotate 8s ease infinite;
+        }
+
+        @keyframes glowRotate {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-hexagon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: hexFloat 3s ease-in-out infinite;
+            box-shadow:
+                0 0 40px var(--neon-cyan),
+                0 0 80px rgba(0, 255, 245, 0.3);
+        }
+
+        @keyframes hexFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+        }
+
+        .logo-hexagon::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            background: var(--card-bg);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        }
+
+        .logo-icon {
+            position: relative;
+            z-index: 1;
+            width: 45px;
+            height: 45px;
+            stroke: var(--neon-cyan);
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 8px var(--neon-cyan));
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(0, 255, 245, 0.5);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.3);
+            }
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: rgba(0, 255, 245, 0.7);
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-label {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--card-bg);
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            z-index: 2;
+            border-left: 2px solid var(--neon-cyan);
+            border-right: 2px solid var(--neon-cyan);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 24px 18px 50px;
+            background: var(--input-bg);
+            border: 2px solid rgba(0, 255, 245, 0.3);
+            border-radius: 12px;
+            font-size: 16px;
+            color: #ffffff;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            position: relative;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 400;
+        }
+
+        .input-field:focus {
+            border-color: var(--neon-cyan);
+            background: rgba(22, 27, 34, 0.8);
+            box-shadow:
+                0 0 20px rgba(0, 255, 245, 0.3),
+                inset 0 0 20px rgba(0, 255, 245, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .input-field:focus + .input-icon {
+            color: var(--neon-cyan);
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px var(--neon-cyan));
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0, 255, 245, 0.5);
+            font-size: 20px;
+            transition: all 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Custom styled icons */
+        .icon-user::before {
+            content: '👤';
+        }
+
+        .icon-lock::before {
+            content: '🔒';
+        }
+
+        /* Animated underline effect */
+        .input-underline {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            transition: all 0.4s ease;
+            transform: translateX(-50%);
+        }
+
+        .input-field:focus ~ .input-underline {
+            width: 100%;
+        }
+
+        /* Data stream effect on input focus */
+        .data-stream {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            color: var(--neon-cyan);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .input-field:focus ~ .data-stream {
+            opacity: 0.6;
+            animation: dataScroll 1.5s linear infinite;
+        }
+
+        @keyframes dataScroll {
+            0% {
+                content: '[OK]';
+            }
+            33% {
+                content: '[>>]';
+            }
+            66% {
+                content: '[<<]';
+            }
+            100% {
+                content: '[OK]';
+            }
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+            border: none;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #000000;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 35px;
+            transition: all 0.4s ease;
+            box-shadow:
+                0 0 30px rgba(0, 255, 245, 0.4),
+                0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .login-button:hover::before {
+            left: 100%;
+        }
+
+        .login-button:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 0 50px rgba(0, 255, 245, 0.6),
+                0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-button:active {
+            transform: translateY(-1px);
+        }
+
+        .button-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            gap: 15px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 245, 0.3), transparent);
+        }
+
+        .divider-text {
+            font-size: 12px;
+            color: rgba(0, 255, 245, 0.5);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .status-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 255, 245, 0.05);
+            border: 1px solid rgba(0, 255, 245, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--neon-cyan);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            animation: statusBlink 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        @keyframes statusBlink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .security-badge {
+            margin-top: 20px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+        }
+
+        /* Inline error message */
+        .login-error {
+            color: #ff6b6b;
+            background: rgba(255, 0, 64, 0.06);
+            border: 1px solid rgba(255, 0, 64, 0.12);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .login-card {
+                padding: 40px 30px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .logo-hexagon {
+                width: 70px;
+                height: 70px;
+            }
+
+            .logo-icon {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hex-background"></div>
+
+    <!-- Particle system -->
+    <script>
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 4 + 's';
+            particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="corner-accent top-left"></div>
+            <div class="corner-accent top-right"></div>
+            <div class="corner-accent bottom-left"></div>
+            <div class="corner-accent bottom-right"></div>
+
+            <div class="logo-section">
+                <div class="logo-hexagon">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 8V12L14 14" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h1 class="title">CyberShield</h1>
+                <p class="subtitle">Secure Access Portal</p>
+            </div>
+
+            <!-- IMPORTANT: form posts to server so Flask can set the server-side session -->
+            <form id="loginForm" method="POST" action="/login" novalidate>
+                <div class="form-group">
+                    <div class="input-container">
+                        <span class="input-label">User Identity</span>
+                        <span class="input-icon icon-user"></span>
+                        <input
+                            id="usernameInput"
+                            name="username"
+                            type="text"
+                            class="input-field"
+                            placeholder="Enter your access ID"
+                            required
+                            autocomplete="username"
+                        />
+                        <div class="input-underline"></div>
+                        <span class="data-stream">[OK]</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-container">
+                        <span class="input-label">Security Key</span>
+                        <span class="input-icon icon-lock"></span>
+                        <input
+                            id="passwordInput"
+                            name="password"
+                            type="password"
+                            class="input-field"
+                            placeholder="Enter your encryption key"
+                            required
+                            autocomplete="current-password"
+                        />
+                        <div class="input-underline"></div>
+                        <span class="data-stream">[>>]</span>
+                    </div>
+                </div>
+
+                <div id="loginError" class="login-error" aria-live="polite" role="status">Invalid username or password</div>
+
+                <button type="submit" class="login-button">
+                    <span class="button-text">Initialize Access</span>
+                </button>
+            </form>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">SECURED CONNECTION</span>
+                <div class="divider-line"></div>
+            </div>
+
+            <div class="footer">
+                <div class="status-bar">
+                    <span class="status-dot"></span>
+                    <span>SYSTEM ONLINE</span>
+                    <span>|</span>
+                    <span>ISOLATED NETWORK</span>
+                </div>
+                <p class="security-badge">256-BIT ENCRYPTED • ZERO-TRUST AUTHENTICATION</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Client UX: run same animations but submit native form so Flask sets server-side session cookie.
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginError = document.getElementById('loginError');
+
+        function showError(msg) {
+            loginError.textContent = msg;
+            loginError.style.display = 'block';
+        }
+        function hideError() {
+            loginError.style.display = 'none';
+        }
+
+        // Submit handler: performs visual flow then submits the form to the server.
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            hideError();
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!username || !password) {
+                showError('Please fill in both username and password');
+                return;
+            }
+
+            const button = this.querySelector('.login-button');
+            const buttonText = button.querySelector('.button-text');
+
+            buttonText.textContent = 'AUTHENTICATING...';
+            button.style.background = 'linear-gradient(135deg, #ff006e 0%, #8b5cf6 100%)';
+            button.disabled = true;
+
+            setTimeout(() => {
+                buttonText.textContent = 'ACCESS GRANTED';
+                button.style.background = 'linear-gradient(135deg, #00ff88 0%, #00cc88 100%)';
+
+                // Submit to server so Flask can set server-side session cookie and redirect.
+                setTimeout(() => {
+                    // Remove this handler to avoid recursion and perform native submit.
+                    loginForm.removeEventListener('submit', arguments.callee);
+                    loginForm.submit();
+                }, 450);
+            }, 700);
+        });
+
+        // UX: highlight border when user types
+        const inputs = document.querySelectorAll('.input-field');
+        inputs.forEach(input => {
+            input.addEventListener('input', function () {
+                if (this.value.length > 0) {
+                    this.style.borderColor = 'var(--neon-cyan)';
+                } else {
+                    this.style.borderColor = '';
+                }
+                hideError();
+            });
+        });
+
+        // Note:
+        // Server may inject a small inline script when redirecting back with an error query parameter
+        // (e.g., /login?error=Invalid...). That injected script will set and show #loginError.
+    </script>
+</body>
+</html>
